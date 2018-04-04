@@ -1,0 +1,50 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2708";
+
+    fragment@0 {
+        target = <&spi0>;
+        __overlay__ {
+            /delete-node/ spidev@0;
+            navidev0: navidev@0{
+        		compatible = "pe,navidev";
+        		#address-cells = <1>;
+        		#size-cells = <0>;
+                reg = <0>;
+        		spi-max-frequency = <12000000>;
+                spi-min-frequency = <1000000>;
+                status = "okay";
+
+                boot: boot{
+                    gpios = <&gpio 17 1>;
+                    pe,name = "IMC BOOT";
+                    pe,direction = "output";
+                    status = "okay";   
+                };
+
+                reset: reset{
+                    gpios = <&gpio 18 1>;
+                    pe,name = "IMC RESET";
+                    pe,direction = "output";
+                    status = "okay";   
+                };
+
+                imc_req: imc_req{
+                    gpios = <&gpio 24 1>, <&gpio 22 1>;
+                    pe,name = "IMC REQ";
+                    pe,direction = "output";
+                    status = "okay";   
+                };
+
+                imc_irq: imc_irq{
+                    gpios = <&gpio 23 1>, <&gpio 27 1>;
+                    pe,name = "IMC IRQ";
+                    pe,direction = "input";
+                    status = "okay";   
+                };
+        	};
+        };
+    };
+};
