@@ -1,7 +1,7 @@
 Introduction
 ============
 
-The nav.HAT driver needs the proper device tree information for initialization.
+The Moitessier HAT driver needs the proper device tree information for initialization.
 There are several approaches to store this information:
   1. Add the information to the proper device tree file for your plattform in
      the linux source directory <KERNEL_SRC>/arch/<ARCHITECTURE>/boot/dts/<PLATFORM>.dts.
@@ -11,7 +11,7 @@ There are several approaches to store this information:
      SD card.
   3. Create a device tree file and flash it into the ID EEPROM located on the HAT.
 
-The practical implementation of the approaches is explained below. The nav.HAT is designed for
+The practical implementation of the approaches is explained below. The Moitessier HAT is designed for
 the Raspberry Pi 3 Model B, however you might use the description with minor adaptations for
 other plattforms as well.
 
@@ -31,8 +31,8 @@ Add the following lines to the end of the platform device tree <KERNEL_SRC>/arch
 
 &spi0 {
     /delete-node/ spidev@0;
-    navidev0: navidev@0{
-		compatible = "pe,navidev";
+    moitessier0: moitessier@0{
+		compatible = "rooco,moitessier";
 		#address-cells = <1>;
 		#size-cells = <0>;
         reg = <0>;
@@ -42,29 +42,29 @@ Add the following lines to the end of the platform device tree <KERNEL_SRC>/arch
 
         boot: boot{
             gpios = <&gpio 17 GPIO_ACTIVE_LOW>;
-            pe,name = "IMC BOOT";
-            pe,direction = "output";
+            rooco,name = "IMC BOOT";
+            rooco,direction = "output";
             status = "okay";   
         };
 
         reset: reset{
             gpios = <&gpio 18 GPIO_ACTIVE_LOW>;
-            pe,name = "IMC RESET";
-            pe,direction = "output";
+            rooco,name = "IMC RESET";
+            rooco,direction = "output";
             status = "okay";   
         };
 
         imc_req: imc_req{
             gpios = <&gpio 24 GPIO_ACTIVE_LOW>, <&gpio 22 GPIO_ACTIVE_LOW>;
-            pe,name = "IMC REQ";
-            pe,direction = "output";
+            rooco,name = "IMC REQ";
+            rooco,direction = "output";
             status = "okay";   
         };
 
         imc_irq: imc_irq{
             gpios = <&gpio 23 GPIO_ACTIVE_LOW>, <&gpio 27 GPIO_ACTIVE_LOW>;
-            pe,name = "IMC IRQ";
-            pe,direction = "input";
+            rooco,name = "IMC IRQ";
+            rooco,direction = "input";
             status = "okay";   
         };
 	};
@@ -98,7 +98,7 @@ create an EEPROM image all the time during development or debugging.
 First you need to create the overlay file (*.dts) with the following content:
 
 ```
-**** CONTENT NAVIDEV.DTS - START ****
+**** CONTENT MOITESSIER.DTS - START ****
 
 /dts-v1/;
 /plugin/;
@@ -110,8 +110,8 @@ First you need to create the overlay file (*.dts) with the following content:
         target = <&spi0>;
         __overlay__ {
             /delete-node/ spidev@0;
-            navidev0: navidev@0{
-        		compatible = "pe,navidev";
+            moitessier0: moitessier@0{
+        		compatible = "rooco,moitessier";
         		#address-cells = <1>;
         		#size-cells = <0>;
                 reg = <0>;
@@ -121,29 +121,29 @@ First you need to create the overlay file (*.dts) with the following content:
 
                 boot: boot{
                     gpios = <&gpio 17 1>;
-                    pe,name = "IMC BOOT";
-                    pe,direction = "output";
+                    rooco,name = "IMC BOOT";
+                    rooco,direction = "output";
                     status = "okay";   
                 };
 
                 reset: reset{
                     gpios = <&gpio 18 1>;
-                    pe,name = "IMC RESET";
-                    pe,direction = "output";
+                    rooco,name = "IMC RESET";
+                    rooco,direction = "output";
                     status = "okay";   
                 };
 
                 imc_req: imc_req{
                     gpios = <&gpio 24 1>, <&gpio 22 1>;
-                    pe,name = "IMC REQ";
-                    pe,direction = "output";
+                    rooco,name = "IMC REQ";
+                    rooco,direction = "output";
                     status = "okay";   
                 };
 
                 imc_irq: imc_irq{
                     gpios = <&gpio 23 1>, <&gpio 27 1>;
-                    pe,name = "IMC IRQ";
-                    pe,direction = "input";
+                    rooco,name = "IMC IRQ";
+                    rooco,direction = "input";
                     status = "okay";   
                 };
         	};
@@ -151,24 +151,24 @@ First you need to create the overlay file (*.dts) with the following content:
     };
 };
 
-**** CONTENT NAVIDEV.DTS - END ****
+**** CONTENT MOITESSIER.DTS - END ****
 ```
 
 Cross compile the device tree overlay:
     ```
-    host> <KERNEL_SRC>/scripts/dtc/dtc -@ -I dts -O dtb -o naviDev.dtbo naviDev.dts
+    host> <KERNEL_SRC>/scripts/dtc/dtc -@ -I dts -O dtb -o moitessier.dtbo moitessier.dts
     ```
 
 Copy the device tree overlay to the Raspberry Pi SD card. If SSH is enabled, you can use the scp command, otherwise use a card reader.
     ```
-    host> sudo scp naviDev.dtbo pi@<RASPI_IP_ADDR>:/media/pi/boot/overlays
+    host> sudo scp moitessier.dtbo pi@<RASPI_IP_ADDR>:/media/pi/boot/overlays
     ```
 
 Modify the file *config.txt* located on the boot partition of the Raspberry Pi SD card and add the following
 line at the end of this configuration file. This will ensure, that the proper overlay file will be loaded
 during booting.
     ```
-    dtoverlay=naviDev
+    dtoverlay=moitessier
     ```
 
 You need to reboot the Raspberry Pi for the changes to take effect.
@@ -179,7 +179,7 @@ Note: You should definitely avoid using approach 1 and 2 simultaneously.
 Approach 3
 ==========
 
-You should use this approach if your HAT supports an ID EEPROM. This is definitely the case for the nav.HAT.
+You should use this approach if your HAT supports an ID EEPROM. This is definitely the case for the Moitessier HAT.
 This approach is similar to approach 2. You use the same device tree overlay information and you compile
 it exactly the same as described above.
 The main difference to approach 2 is, that we flash this compiled device tree blob into the EEPROM. The
@@ -192,30 +192,30 @@ Complete the following steps.
 3. Create file eeprom_settings.txt with the content below.
 4. Create the EEPROM image:
        ```
-       host> eeprom/eepmake eeprom_settings.txt naviDev.eep naviDev.dtbo
+       host> eeprom/eepmake eeprom_settings.txt moitessier.eep moitessier.dtbo
        ```
 5. Add the following lines to *config.txt* on the boot partition of the Raspberry Pi SD card
    (1) to enable the I2C0 interface for EEPROM writing and (2) loading the device tree overlay file 
    to access the HAT at all:
        ```
        dtparam=i2c_vc=on
-       dtoverlay=naviDev
+       dtoverlay=moitessier
        ```
    Note: The device tree overlay is only required, if the HAT related device tree information is not
    available through another source (e.g. previously loading from ID EEPROM).
 6. Reboot the Raspberry Pi for changes to take effect.
-7. Disable the write protection for the ID EEPROM (requires nav.HAT driver and control application):
+7. Disable the write protection for the ID EEPROM (requires Moitessier HAT driver and control application):
        ```
-       raspi> sudo insmod naviDev.ko              (if not already loaded)
-       raspi> ./naviDev_ctrl.o /dev/naviDev.ctrl 6 0
+       raspi> sudo insmod moitessier.ko              (if not already loaded)
+       raspi> ./moitessier_ctrl /dev/moitessier.ctrl 6 0
        ```
 8. Write the EEPROM:
        ```
-       raspi> sudo ./eepflash.sh -w -f=naviDev.eep -t=24c32 -d=0 -a=50
+       raspi> sudo ./eepflash.sh -w -f=moitessier.eep -t=24c32 -d=0 -a=50
        ```
 9. Restore *config.txt* and reboot. The device tree will be loaded from the ID EEPROM upon reboot.
 
-The device tree information for the HAT can be read from /proc/device-tree/hat and /proc/device-tree/soc/spi@7e204000/navidev@0
+The device tree information for the HAT can be read from /proc/device-tree/hat and /proc/device-tree/soc/spi@7e204000/moitessier@0
 
 
 ```
@@ -248,10 +248,10 @@ product_id 0x0000
 product_ver 0x0000
 
 # ASCII vendor string  (max 255 characters)
-vendor "CSOFT"
+vendor "ROOCO"
 
 # ASCII product string (max 255 characters)
-product "Moitessier Navigation HAT"
+product "Moitessier HAT"
 
 
 ########################################################################

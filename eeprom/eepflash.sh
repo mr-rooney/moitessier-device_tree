@@ -1,12 +1,14 @@
 #!/bin/sh
 
 # 2018-02-18, POMS: status=progress need to be commented, otherwise writing the EEPROM fails.
+# 2018-04-18, POMS: added option --force
 
 MODE="NOT_SET"
 FILE="NOT_SET"
 TYPE="NOT_SET"
 BUS="NOT_SET"
 ADDR="NOT_SET"
+FORCE="NOT_SET"
 
 usage()
 {
@@ -27,6 +29,7 @@ usage()
 	echo "		-24c256"
 	echo "		-24c512"
 	echo "		-24c1024"
+	echo "  --force: force update"
 	echo ""
 	echo "Example:"
 	echo "./eepflash -w -f=crex0.1.eep -t=24c32 -d=1 -a=57"
@@ -62,6 +65,9 @@ while [ "$1" != "" ]; do
 				exit 1
 			fi
 			;;
+        --force)
+			FORCE="force"
+			;;			
 		-d | --device)
 			BUS=$VALUE
 			;;
@@ -94,14 +100,19 @@ fi
 echo "This will attempt to talk to an eeprom at i2c address 0x$ADDR on bus $BUS. Make sure there is an eeprom at this address."
 echo "This script comes with ABSOLUTELY no warranty. Continue only if you know what you are doing."
 
-while true; do
-	read -p "Do you wish to continue? (yes/no): " yn
-	case $yn in
-		yes | Yes ) break;;
-		no | No ) exit;;
-		* ) echo "Please type yes or no.";;
-	esac
-done
+if [ "$FORCE" = "NOT_SET" ]
+then
+    while true; do
+    	read -p "Do you wish to continue? (yes/no): " yn
+    	case $yn in
+    		yes | Yes ) break;;
+    		no | No ) exit;;
+    		* ) echo "Please type yes or no.";;
+    	esac
+    done
+else
+    sleep 3         # FIXME: this delay is necessary, otherwise writing fails
+fi    
 
 modprobe i2c_dev
 if [ "$BUS" = "NOT_SET" ]; then

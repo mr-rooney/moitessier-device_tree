@@ -25,10 +25,10 @@ product_id 0x0000
 product_ver 0x0000
 
 # ASCII vendor string  (max 255 characters)
-vendor "CSOFT"
+vendor "ROOCO"
 
 # ASCII product string (max 255 characters)
-product "Moitessier Navigation HAT"
+product "Moitessier HAT"
 
 
 ########################################################################
